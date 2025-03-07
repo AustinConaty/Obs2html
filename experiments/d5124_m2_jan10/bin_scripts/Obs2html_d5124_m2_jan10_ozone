@@ -1,0 +1,46 @@
+#!/bin/csh
+
+# this shell script is meant to run the
+# obs2html package on gsi as normally intended
+# by Dick Dee.
+#
+# It then will copy only the png/html files to
+# the specified web page for monitoring purposes
+#
+# There are 2 general modes of running obs2html
+# 1) obs2html is run on the ODS file to create
+#       data coverage plots and compile statistics
+#       ie > obs2html -expid fvgsi_01 fvgsi_01.diag.20050716.ods
+# 2) obs2html is run with a begin and end date to produce
+#       time average statistic plots and html
+#
+#
+# This script is meant to be run in the second mode
+# and will copy the needed png and html files to the
+# specified remote directory. 
+
+set YYYY = $1
+set MM = $2
+
+
+set expid = d5124_m2_jan10
+set rootworkdir = /discover/nobackup/aconaty/d5124_m2_jan10/obs2html/ozone
+set webdir = /san_dolms/d5124_m2_jan10/TERRA_html/obs2html/Y$YYYY/M$MM/ozone
+set webhost = polar
+#set begdate = $1
+#set enddate = $2
+
+set echo on
+ssh {$webhost} "mkdir -p $webdir"
+scp  {$rootworkdir}/obsmon/index.html {$webhost}:{$webdir}
+scp {$rootworkdir}/obsmon/k*.html  {$rootworkdir}/obsmon/q*.html {$webhost}:{$webdir}
+foreach obsgroup (G1 G2 G3 G4 G5 G6 G7 G8 G9 G10 G11 G12 G13 G14 G15 G16 G17 G18 G19)
+
+ssh {$webhost} "mkdir -p $webdir/$obsgroup/Y$YYYY/M$MM"
+echo Whooooaaaaaa
+echo {$rootworkdir}/obsmon/{$obsgroup}.html
+scp {$rootworkdir}/obsmon/{$obsgroup}.html  {$webhost}:{$webdir}
+scp {$rootworkdir}/obsmon/{$obsgroup}/Y$YYYY/M$MM/*$YYYY$MM*png {$webhost}:{$webdir}/{$obsgroup}/Y$YYYY/M$MM/
+scp {$rootworkdir}/obsmon/{$obsgroup}/*$YYYY$MM*png {$webhost}:{$webdir}/{$obsgroup}
+
+end
